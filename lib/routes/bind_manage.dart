@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../common/eventBus.dart';
+
+void fireRefresh(){
+  eventBus.fire(new MyEvent("added"));
+}
 
 class BindManage extends StatefulWidget {
   _BindManageState createState() => _BindManageState();
@@ -91,7 +96,9 @@ final TextEditingController defname = new TextEditingController();
     appBar: AppBar(title: Text("管理温度计"),actions: <Widget>[
       IconButton(icon:Icon(Icons.settings),onPressed: (){}),
       IconButton(icon: Icon(Icons.add),onPressed: (){Navigator.pushNamed(context, "addname");},),
-    ],),
+    ],
+      leading: IconButton(icon:Icon(Icons.arrow_back,color: Colors.white),
+      onPressed: (){Navigator.of(context).pop("context");}),),
     body:ListView.builder(
       itemCount:binds.length,
       itemBuilder: (BuildContext context,int index){
@@ -151,7 +158,7 @@ final TextEditingController defname = new TextEditingController();
             textfld[index]?
             IconButton(
               icon:Icon(Icons.done),
-              onPressed:(){setState(() {textfld[index]=false;});_bindNickname2sn(index);},)
+              onPressed:(){setState(() {textfld[index]=false;});_bindNickname2sn(index);fireRefresh();},)
             :IconButton(
               icon: Icon(Icons.delete),
               onPressed: (){_del(binds[index][0]);},

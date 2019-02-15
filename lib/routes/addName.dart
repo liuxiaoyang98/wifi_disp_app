@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../common/eventBus.dart';
+
+void fireRefresh(){
+  eventBus.fire(new MyEvent("added"));
+}
 
 class AddName extends StatefulWidget {
   _AddNameState createState() => _AddNameState();
@@ -13,11 +18,11 @@ final TextEditingController defname = new TextEditingController();
   Widget build(BuildContext context) {
     return Scaffold(
     appBar: AppBar(
-      title: Text("绑定备注和设备号"),
+      title: Text("添加一个温度计"),
       actions: <Widget>[
         IconButton(
           icon:Icon(Icons.done),
-          onPressed: (){_bindNickname2sn();},
+          onPressed: (){_bindNickname2sn();fireRefresh();Navigator.pushNamed(context, "options");},
         )
       ],
     ),

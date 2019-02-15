@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:flutter/rendering.dart';
 import 'dart:io';
+import 'package:event_bus/event_bus.dart';
+import '../common/eventBus.dart';
 import 'dart:convert';
-
 // class ValueNotifierData extends ValueNotifier<List>{
 //   ValueNotifierData(value):super(value);
 // }
@@ -23,20 +24,22 @@ class _WdCardStatePlus extends State<WdCardPlus> {
   List<String> _sns;
   List gets;
   Map<int,List<String>> binds;
-    _getBind()async{//获取温度计
+//获取温度计
+    _getBind()async{
       SharedPreferences prefs = await SharedPreferences.getInstance();
       gets = prefs.getStringList("bind")??[];
       binds={};
       print(gets);
+      if(gets.isEmpty){_hasData=false;return;}
+      _hasData=true;
   for(int i = 0;i<gets.length;i++){
     binds[i]=[json.decode(gets[i])[0],json.decode(gets[i])[1]];
   }
       print(binds);
-      List<String> ret=[];
+      _sns=[];
       for(int i=0;i<binds.length;i++){
           _sns.insert(i, binds[i][0]);
       }
-      print(ret);
       getData(_sns);
     }
 
@@ -45,7 +48,7 @@ class _WdCardStatePlus extends State<WdCardPlus> {
     var httpClient = new HttpClient();
     RegExp _isSn = new RegExp(r"^[a-z0-9]{4,7}$");
     for(int i=0;i<list.length;i++){if(_isSn.hasMatch(list[i])){if(i==0)snsStr=snsStr+list[i];else snsStr=snsStr+"-"+list[i];}}
-    print("77:"+snsStr);
+    print(snsStr);
     String url = "https://temp2.wf163.com:1443/wendu/now_wendu.php?sn="+snsStr;
     var request = await httpClient.getUrl(Uri.parse(url));
     var response = await request.close();
@@ -54,18 +57,17 @@ class _WdCardStatePlus extends State<WdCardPlus> {
     if(!mounted)return;
       result=jsonDecode(json);
     setState(() {
-      _hasData=true;
       });
     }
     }
   List wdData;
   @override
   initState() {
+    eventBus.on<MyEvent>().listen((MyEvent event){_getBind();});
     super.initState();
+    _hasData=false;
     // widget.data.addListener(_handleValueChanged);
     _getBind();
-    _hasData=false;
-    changed=false;
   }
 @override
   void dispose() {
@@ -75,9 +77,8 @@ class _WdCardStatePlus extends State<WdCardPlus> {
   @override
   Widget build(BuildContext context) {
     // print(result);
-    // print(_hasData?result.length*2-1:0);
-      return ListView.builder(
-        itemCount: _hasData?result.length*2-1:0,
+      return _hasData?ListView.builder(
+        itemCount: result.length*2-1,
         padding: EdgeInsets.all(8.0),
         itemBuilder: (BuildContext context,int index){
           if(index.isEven)
@@ -185,6 +186,15 @@ class _WdCardStatePlus extends State<WdCardPlus> {
       ),
     );
         },
-    );   
+    ):
+      Container(
+        margin: EdgeInsets.only(top:200),
+        child:Column(
+          children: <Widget>[
+            Text("点击\"+\"添加一个温度计",style: TextStyle(color:Colors.grey),),
+            IconButton(icon: Icon(Icons.add),onPressed: (){Navigator.pushNamed(context, "addname");},iconSize: 25,)
+          ],
+        )
+    );
   }
 }
