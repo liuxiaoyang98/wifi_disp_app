@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:flutter/rendering.dart';
-import 'package:flutter/animation.dart';
 import 'dart:io';
 import 'dart:convert';
 
@@ -18,14 +17,13 @@ class _WdCardStatePlus extends State<WdCardPlus> {
   bool _hasData;
   bool changed;
   String data;
-  var switchColor;
   var result;
   Color fromColor;
   Color toColor;
   List<String> _sns;
   List gets;
   Map<int,List<String>> binds;
-    _getBind()async{
+    _getBind()async{//获取温度计
       SharedPreferences prefs = await SharedPreferences.getInstance();
       gets = prefs.getStringList("bind")??[];
       binds={};
@@ -36,49 +34,17 @@ class _WdCardStatePlus extends State<WdCardPlus> {
       print(binds);
       List<String> ret=[];
       for(int i=0;i<binds.length;i++){
-          ret.insert(i, binds[i][0]);
+          _sns.insert(i, binds[i][0]);
       }
       print(ret);
-      prefs.setStringList("SNS", ret);
-      _loadSns();
+      getData(_sns);
     }
 
-    _loadSns() async{//读取'SNS'
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-      _sns = prefs.getStringList("SNS")??["000000"];
-      data=_sns.toString();
-      getData(_sns);
-  }
-    bool _checkBind(int index){
-      if(_sns.isEmpty)return false;
-      String sn=_sns[index];
-      for(int i=0;i<binds.length;i++){
-        if(binds[i][0]==sn)return true;
-      }
-      return false;
-    }
-  //   void _handleValueChanged() {
-  //   setState(() {
-  //     print(widget.data.value);
-  //   });
-  // }
-  _dataHasChanged()async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    _sns = prefs.getStringList("SNS")??["000000"];
-    if(data!=_sns.toString())changed=true;
-  }
-  _removeSns(String sn)async{
-    print(sn);
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List sns = prefs.getStringList("SNS");
-    sns.remove(sn);
-    prefs.setStringList("SNS", sns);
-  }
     getData(List list) async{
     String snsStr="";
     var httpClient = new HttpClient();
     RegExp _isSn = new RegExp(r"^[a-z0-9]{4,7}$");
-    for(int i=0;i<list.length;i++){if(_isSn.hasMatch(list[i])){if(i==0)snsStr=snsStr+list[i];else snsStr=snsStr+"-"+list[i];}else _removeSns(list[i]);}
+    for(int i=0;i<list.length;i++){if(_isSn.hasMatch(list[i])){if(i==0)snsStr=snsStr+list[i];else snsStr=snsStr+"-"+list[i];}}
     print("77:"+snsStr);
     String url = "https://temp2.wf163.com:1443/wendu/now_wendu.php?sn="+snsStr;
     var request = await httpClient.getUrl(Uri.parse(url));
@@ -92,29 +58,17 @@ class _WdCardStatePlus extends State<WdCardPlus> {
       });
     }
     }
-  Future<Null> loops() async{
-    await Future.delayed(Duration(milliseconds: 500),(){
-    _dataHasChanged();
-    if(changed){
-    _loadSns();
-    changed=false;
-    }
-    loops();
-    });
-  }
   List wdData;
   @override
   initState() {
     super.initState();
     // widget.data.addListener(_handleValueChanged);
     _getBind();
-    loops();
     _hasData=false;
     changed=false;
   }
 @override
   void dispose() {
-    // TODO: implement dispose
     // widget.data.removeListener(_loadSns);
     super.dispose();
   }
@@ -129,19 +83,6 @@ class _WdCardStatePlus extends State<WdCardPlus> {
           if(index.isEven)
           return Card(
             color: Colors.grey[200],
-            /*
-            margin: EdgeInsets.only(bottom: 2.0,top: 2.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5.0),
-              color: Colors.red[400],
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey,
-                  blurRadius: 3.0,
-                ),
-              ],
-              ),
-              */
             child: 
             FlatButton(
               onPressed: (){},
@@ -155,34 +96,13 @@ class _WdCardStatePlus extends State<WdCardPlus> {
                   Row(
                     children:<Widget>[
                     Text(
-                      _checkBind(index~/2)?"·"+binds[index~/2][1]:"设备号:"+result[index~/2]["sn"],
-                      style:_checkBind(index~/2)?
+                      "·"+binds[index~/2][1],
+                      style:
                       TextStyle(
                         color:Colors.blueGrey[400],
                         fontSize: 25.0,
                         height: 1.5
-                      ):
-                      TextStyle(
-                        color: Color.fromRGBO(0, 0, 0, 0.5),
-                        fontSize:20.0,
-                      ),
-                    ),
-                    Expanded(child: 
-                    Container(
-                      height:20,
-                      width:20,
-                        padding: EdgeInsets.all(0.0),
-                        margin: EdgeInsets.only(top: 25/2,bottom: 25/2),
-                      alignment: FractionalOffset.topRight,
-                        child:
-                    _checkBind(index~/2)?Container():IconButton(
-                        padding: EdgeInsets.all(0.0),
-                      icon: Icon(Icons.close),
-                      onPressed: (){_removeSns(_sns[index~/2]);},
-                      iconSize: 20,
-                      color: Color(0x66000000),
-                    )
-                    ),
+                      )
                     ),
                     ],
                   ),
@@ -237,7 +157,7 @@ class _WdCardStatePlus extends State<WdCardPlus> {
                   child:
                   IconButton(
                     icon: Icon(Icons.more_horiz,color:Colors.grey),
-                    onPressed: (){_loadSns();},
+                    onPressed: (){_getBind();},
                     iconSize: 30,
                   ),
                 ),
