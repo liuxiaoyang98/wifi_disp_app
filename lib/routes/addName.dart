@@ -30,7 +30,6 @@ final TextEditingController defname = new TextEditingController();
        child:
        Column(
          children: <Widget>[
-
           Container(//副标题
             margin: EdgeInsets.only(top:13),
             alignment: FractionalOffset.topCenter,

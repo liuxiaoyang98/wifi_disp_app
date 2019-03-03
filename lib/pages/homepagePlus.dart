@@ -1,62 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:flutter/rendering.dart';
 import 'package:flutter/animation.dart';
 import '../widgets/wd_card_plus.dart';
 import '../widgets/drawer.dart';
+//import 'package:fluwx/fluwx.dart' as fluwx;
 
-class HomePagePlus extends StatefulWidget {
-  _HomePagePlusState createState() => _HomePagePlusState();
-}
-
-class _HomePagePlusState extends State<HomePagePlus>  with SingleTickerProviderStateMixin {
-  var data;
-  var result;
-  Color fromColor;
-  Color toColor;
-  Map <int,List<Map<String, String>>> cardData;
-  // ValueNotifierData vd;
-
-  _clear()async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove("SNS");
-  }
-  clearSave(String key)async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove(key);
-  }
-  Animation<double> tween;
-  AnimationController controller;
-
-  var appWidth=0.0;
-  var strWidth;
-  initState(){
-    // vd = ValueNotifierData(['Hello']);
-    fromColor=Colors.white;
-    toColor=Colors.white;
-    super.initState();
-    controller = new AnimationController(
-      duration: const Duration(milliseconds: 600),vsync: this);
-      tween = new Tween(begin: 0.0,end: 10.0).animate(controller)..addListener((){
-        setState(() {
-                });
-      });
-  }
-
-  startAnimation(double from){
-    setState(() {
-          controller.forward(from: 0.0);
-        });
-  }
-
-
-
-
-  final TextEditingController textField = new TextEditingController();
-  bool hasResult;
+class HomePagePlus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    if(null==result)hasResult=false;else hasResult=true;
     return Scaffold(
       backgroundColor: Colors.grey[300],
       appBar: AppBar(
@@ -74,7 +25,7 @@ class _HomePagePlusState extends State<HomePagePlus>  with SingleTickerProviderS
                 padding: EdgeInsets.all(0),
                 onPressed:(){
                 Navigator.pop(context);
-                Navigator.pushNamed(context, "options");} ,
+                Navigator.pushNamed(context, "login");} ,
               )
               ),
             new PopupMenuItem(
@@ -106,15 +57,9 @@ class _HomePagePlusState extends State<HomePagePlus>  with SingleTickerProviderS
       ),
       body:
       Center(
-        // child:hasResult?loops:WdCard(wdData:result),
         child:WdCardPlus()
       ),
       drawer: Drawers(),
     );
-  }
-@override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
   }
 }

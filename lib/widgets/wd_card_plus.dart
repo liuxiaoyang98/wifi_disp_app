@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:flutter/rendering.dart';
 import 'dart:io';
 import 'package:event_bus/event_bus.dart';
 import '../common/eventBus.dart';
 import 'dart:convert';
-// class ValueNotifierData extends ValueNotifier<List>{
-//   ValueNotifierData(value):super(value);
-// }
+
 class WdCardPlus extends StatefulWidget {
-  // WdCardPlus({this.data});
-  // final ValueNotifierData data;
   @override
   _WdCardStatePlus createState() => _WdCardStatePlus();
 }
@@ -24,6 +19,8 @@ class _WdCardStatePlus extends State<WdCardPlus> {
   List<String> _sns;
   List gets;
   Map<int,List<String>> binds;
+
+
 //获取温度计
     _getBind()async{
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -58,6 +55,8 @@ class _WdCardStatePlus extends State<WdCardPlus> {
       result=jsonDecode(json);
     setState(() {
       });
+    }else{
+      
     }
     }
   List wdData;
